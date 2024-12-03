@@ -45,6 +45,8 @@ from yolo_msgs.msg import Detection
 from yolo_msgs.msg import DetectionArray
 from yolo_msgs.srv import SetClasses
 
+import time
+
 
 class YoloNode(LifecycleNode):
 
@@ -380,6 +382,7 @@ class YoloNode(LifecycleNode):
 
             del results
             del cv_image
+            time.sleep(0.3)
 
     def set_classes_cb(
         self, req: SetClasses.Request, res: SetClasses.Response
