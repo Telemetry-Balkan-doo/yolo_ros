@@ -382,7 +382,7 @@ class YoloNode(LifecycleNode):
 
             del results
             del cv_image
-            time.sleep(0.3)
+            time.sleep(0.4)
 
     def set_classes_cb(
         self, req: SetClasses.Request, res: SetClasses.Response

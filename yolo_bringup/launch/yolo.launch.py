@@ -183,9 +183,9 @@ def generate_launch_description():
             description="Maximum detection threshold in the z axis",
         )
 
-        namespace = LaunchConfiguration("namespace")
+        namespace = LaunchConfiguration("namespace2")
         namespace_cmd = DeclareLaunchArgument(
-            "namespace", default_value="yolo", description="Namespace for the nodes"
+            "namespace2", default_value="yolo", description="Namespace for the nodes"
         )
 
         use_debug = LaunchConfiguration("use_debug")
