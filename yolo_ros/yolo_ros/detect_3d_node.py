@@ -166,10 +166,10 @@ class Detect3DNode(LifecycleNode):
         return TransitionCallbackReturn.SUCCESS
 
     def on_detections(
-        self,
-        depth_msg: Image,
-        depth_info_msg: CameraInfo,
-        detections_msg: DetectionArray,
+            self,
+            depth_msg: Image,
+            depth_info_msg: CameraInfo,
+            detections_msg: DetectionArray,
     ) -> None:
 
         new_detections_msg = DetectionArray()
@@ -180,10 +180,10 @@ class Detect3DNode(LifecycleNode):
         self._pub.publish(new_detections_msg)
 
     def process_detections(
-        self,
-        depth_msg: Image,
-        depth_info_msg: CameraInfo,
-        detections_msg: DetectionArray,
+            self,
+            depth_msg: Image,
+            depth_info_msg: CameraInfo,
+            detections_msg: DetectionArray,
     ) -> List[Detection]:
 
         # check if there are detections
@@ -221,7 +221,7 @@ class Detect3DNode(LifecycleNode):
         return new_detections
 
     def convert_bb_to_3d(
-        self, depth_image: np.ndarray, depth_info: CameraInfo, detection: Detection
+            self, depth_image: np.ndarray, depth_info: CameraInfo, detection: Detection
     ) -> BoundingBox3D:
 
         center_x = int(detection.bbox.center.position.x)
@@ -258,7 +258,7 @@ class Detect3DNode(LifecycleNode):
 
         else:
             bb_center_z_coord = (
-                depth_image[int(center_y)][int(center_x)] / self.depth_image_units_divisor
+                    depth_image[int(center_y)][int(center_x)] / self.depth_image_units_divisor
             )
 
         z_diff = np.abs(roi - bb_center_z_coord)
@@ -293,7 +293,7 @@ class Detect3DNode(LifecycleNode):
         return msg
 
     def convert_keypoints_to_3d(
-        self, depth_image: np.ndarray, depth_info: CameraInfo, detection: Detection
+            self, depth_image: np.ndarray, depth_info: CameraInfo, detection: Detection
     ) -> KeyPoint3DArray:
 
         # build an array of 2d keypoints
@@ -310,7 +310,7 @@ class Detect3DNode(LifecycleNode):
         x = z * (v - px) / fx
         y = z * (u - py) / fy
         points_3d = (
-            np.dstack([x, y, z]).reshape(-1, 3) / self.depth_image_units_divisor
+                np.dstack([x, y, z]).reshape(-1, 3) / self.depth_image_units_divisor
         )  # convert to meters
 
         # generate message
@@ -362,22 +362,22 @@ class Detect3DNode(LifecycleNode):
 
     @staticmethod
     def transform_3d_box(
-        bbox: BoundingBox3D, translation: np.ndarray, rotation: np.ndarray
+            bbox: BoundingBox3D, translation: np.ndarray, rotation: np.ndarray
     ) -> BoundingBox3D:
 
         # position
         position = (
-            Detect3DNode.qv_mult(
-                rotation,
-                np.array(
-                    [
-                        bbox.center.position.x,
-                        bbox.center.position.y,
-                        bbox.center.position.z,
-                    ]
-                ),
-            )
-            + translation
+                Detect3DNode.qv_mult(
+                    rotation,
+                    np.array(
+                        [
+                            bbox.center.position.x,
+                            bbox.center.position.y,
+                            bbox.center.position.z,
+                        ]
+                    ),
+                )
+                + translation
         )
 
         bbox.center.position.x = position[0]
@@ -397,15 +397,15 @@ class Detect3DNode(LifecycleNode):
 
     @staticmethod
     def transform_3d_keypoints(
-        keypoints: KeyPoint3DArray, translation: np.ndarray, rotation: np.ndarray
+            keypoints: KeyPoint3DArray, translation: np.ndarray, rotation: np.ndarray
     ) -> KeyPoint3DArray:
 
         for point in keypoints.data:
             position = (
-                Detect3DNode.qv_mult(
-                    rotation, np.array([point.point.x, point.point.y, point.point.z])
-                )
-                + translation
+                    Detect3DNode.qv_mult(
+                        rotation, np.array([point.point.x, point.point.y, point.point.z])
+                    )
+                    + translation
             )
 
             point.point.x = position[0]
@@ -424,11 +424,21 @@ class Detect3DNode(LifecycleNode):
         return v + 2 * (uv * q[0] + uuv)
 
 
-def main():
-    rclpy.init()
+def main(args=None):
+    rclpy.init(args=args)
     node = Detect3DNode()
     node.trigger_configure()
     node.trigger_activate()
-    rclpy.spin(node)
+
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, rclpy.exceptions.ROSInterruptException):
+        pass
+
     node.destroy_node()
-    rclpy.shutdown()
+    if rclpy.get_default_context().ok():
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

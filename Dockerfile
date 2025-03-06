@@ -13,9 +13,9 @@ RUN apt-get update \
     git \
     python3 \
     python3-pip
-RUN pip3 install -r src/requirements.txt
+RUN pip3 install -r src/requirements.txt --break-system-packages
 RUN rosdep install --from-paths src --ignore-src -r -y
-RUN pip3 install sphinx==8.0.0 sphinx-rtd-theme==3.0.0
+RUN pip3 install sphinx==8.0.0 sphinx-rtd-theme==3.0.0 --break-system-packages
 
 # Colcon the ws
 FROM deps AS builder

@@ -199,7 +199,7 @@ class YoloNode(LifecycleNode):
         return TransitionCallbackReturn.SUCCESS
 
     def enable_cb(
-        self, request: SetBool.Request, response: SetBool.Response
+            self, request: SetBool.Request, response: SetBool.Response
     ) -> SetBool.Response:
         self.enable = request.data
         response.success = True
@@ -237,7 +237,6 @@ class YoloNode(LifecycleNode):
         if results.boxes:
             box_data: Boxes
             for box_data in results.boxes:
-
                 msg = BoundingBox2D()
 
                 # get boxes values
@@ -279,7 +278,6 @@ class YoloNode(LifecycleNode):
 
         mask: Masks
         for mask in results.masks:
-
             msg = Mask()
 
             msg.data = [
@@ -385,7 +383,7 @@ class YoloNode(LifecycleNode):
             time.sleep(0.4)
 
     def set_classes_cb(
-        self, req: SetClasses.Request, res: SetClasses.Response
+            self, req: SetClasses.Request, res: SetClasses.Response
     ) -> SetClasses.Response:
         self.get_logger().info(f"Setting classes: {req.classes}")
         self.yolo.set_classes(req.classes)
@@ -393,11 +391,21 @@ class YoloNode(LifecycleNode):
         return res
 
 
-def main():
-    rclpy.init()
+def main(args=None):
+    rclpy.init(args=args)
     node = YoloNode()
     node.trigger_configure()
     node.trigger_activate()
-    rclpy.spin(node)
+
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, rclpy.exceptions.ROSInterruptException):
+        pass
+
     node.destroy_node()
-    rclpy.shutdown()
+    if rclpy.get_default_context().ok():
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

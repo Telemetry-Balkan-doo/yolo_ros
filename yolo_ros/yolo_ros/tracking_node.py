@@ -153,7 +153,6 @@ class TrackingNode(LifecycleNode):
         detection_list = []
         detection: Detection
         for detection in detections_msg.detections:
-
             detection_list.append(
                 [
                     detection.bbox.center.position.x - detection.bbox.size.x / 2,
@@ -198,11 +197,21 @@ class TrackingNode(LifecycleNode):
         self._pub.publish(tracked_detections_msg)
 
 
-def main():
-    rclpy.init()
+def main(args=None):
+    rclpy.init(args=args)
     node = TrackingNode()
     node.trigger_configure()
     node.trigger_activate()
-    rclpy.spin(node)
+
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, rclpy.exceptions.ROSInterruptException):
+        pass
+
     node.destroy_node()
-    rclpy.shutdown()
+    if rclpy.get_default_context().ok():
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

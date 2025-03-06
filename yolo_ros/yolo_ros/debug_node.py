@@ -129,7 +129,7 @@ class DebugNode(LifecycleNode):
         return TransitionCallbackReturn.SUCCESS
 
     def draw_box(
-        self, cv_image: np.ndarray, detection: Detection, color: Tuple[int]
+            self, cv_image: np.ndarray, detection: Detection, color: Tuple[int]
     ) -> np.ndarray:
 
         # get detection info
@@ -184,7 +184,7 @@ class DebugNode(LifecycleNode):
         return cv_image
 
     def draw_mask(
-        self, cv_image: np.ndarray, detection: Detection, color: Tuple[int]
+            self, cv_image: np.ndarray, detection: Detection, color: Tuple[int]
     ) -> np.ndarray:
 
         mask_msg = detection.mask
@@ -370,11 +370,21 @@ class DebugNode(LifecycleNode):
         self._kp_markers_pub.publish(kp_marker_array)
 
 
-def main():
-    rclpy.init()
+def main(args=None):
+    rclpy.init(args=args)
     node = DebugNode()
     node.trigger_configure()
     node.trigger_activate()
-    rclpy.spin(node)
+
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, rclpy.exceptions.ROSInterruptException):
+        pass
+
     node.destroy_node()
-    rclpy.shutdown()
+    if rclpy.get_default_context().ok():
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
